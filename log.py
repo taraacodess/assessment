@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog
+import re
 
 def monitor_logs(log_file_path):
     # Define suspicious patterns
@@ -11,7 +12,15 @@ def monitor_logs(log_file_path):
             for line in file:  # Read file line by line
                 for pattern in Sus_act:
                     if pattern in line:  # Check if pattern appears in the current line
-                        print(f"ALERT: {pattern} attempt detected! At: {line.strip()}")
+                        # Extract timestamp and IP address from the log line using regex
+                        timestamp_match = re.search(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}', line)
+                        ip_match = re.search(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', line)
+                        
+                        timestamp = timestamp_match.group(0) if timestamp_match else "Unknown Time"
+                        ip_address = ip_match.group(0) if ip_match else "Unknown IP"
+
+                        # Print the formatted output with date and IP
+                        print(f"ALERT: {pattern.upper()} ATTEMPT DETECTED AT {timestamp} FROM {ip_address}")
 
     except FileNotFoundError:
         print("Error: Log file not found!")
@@ -30,4 +39,3 @@ if log_file_path:  # Check if a file was selected
     monitor_logs(log_file_path)
 else:
     print("No file selected.")
-
